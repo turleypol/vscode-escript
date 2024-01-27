@@ -22,6 +22,9 @@ target_link_libraries(${lib_name} PUBLIC
   #  libboost_system
   #  libboost_thread
 )
+target_include_directories(${lib_name} PUBLIC
+  ${PROJECT_BINARY_DIR} #global config
+)
 
 if (${linux})
   if (APPLE)

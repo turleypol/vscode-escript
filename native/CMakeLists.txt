@@ -52,7 +52,6 @@ execute_process(
 string(REGEX REPLACE "[\r\n\"]" "" NODE_ADDON_API_DIR ${NODE_ADDON_API_DIR})
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${NODE_ADDON_API_DIR})
-#target_compile_definitions(${PROJECT_NAME} PUBLIC ANTLR4CPP_STATIC)
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
 set(BSCRIPT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/pol")
@@ -61,62 +60,15 @@ set(BSCRIPT_BIN_DIR "${BSCRIPT_SOURCE_DIR}/bin")
 
 if (WIN32)
 
-  if ("${CMAKE_GENERATOR}" MATCHES "Ninja" AND "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-    set(ANTLR_LIB "antlr4-runtime.lib")
-  else()
-    set(ANTLR_LIB "antlr4-runtime-static.lib")
-  endif()
-
-  set(BSCRIPT_LIB "${BSCRIPT_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}/bscript.lib")
-
-  set(BSCRIPT_LIBS
-    "${BSCRIPT_LIB}"
-    "${BSCRIPT_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}/plib.lib"
-    "${BSCRIPT_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}/clib.lib"
-    "${BSCRIPT_SOURCE_DIR}/lib/fmt-10.2.0/install/lib/fmt.lib"
-    "${BSCRIPT_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}/tinyxml.lib"
-    "${BSCRIPT_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}/escriptgrammarlib.lib"
-    "${BSCRIPT_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}/stackwalk.lib"
-    "${BSCRIPT_SOURCE_DIR}/lib/antlr/install/lib/${ANTLR_LIB}"
-  )
-
-  target_link_libraries(${PROJECT_NAME}
-    "ws2_32"
-  )
-
-else()
-
-  set(BSCRIPT_LIB "${BSCRIPT_SOURCE_DIR}/bin/libbscript.a")
-
-  set(BSCRIPT_LIBS
-    "${BSCRIPT_LIB}"
-    "${BSCRIPT_SOURCE_DIR}/bin/libplib.a"
-    "${BSCRIPT_SOURCE_DIR}/bin/libclib.a"
-    "${BSCRIPT_SOURCE_DIR}/lib/fmt-10.2.0/install/lib/libfmt.a"
-    "${BSCRIPT_SOURCE_DIR}/bin/libtinyxml.a"
-    "${BSCRIPT_SOURCE_DIR}/bin/libescriptgrammarlib.a"
-    "${BSCRIPT_SOURCE_DIR}/lib/antlr/install/lib/libantlr4-runtime.a"
-  )
+  #  target_link_libraries(${PROJECT_NAME}
+  #    "ws2_32"
+  #  )
 endif()
 
-if (UNIX)
-  # target_compile_options(${PROJECT_NAME} PRIVATE
-  #  -fPIC )
-#add_compile_options(-fPIC)
-endif()
 if (MSVC)
   set(CMAKE_CXX_FLAGS_RELEASE "/MT")
   set(CMAKE_CXX_FLAGS_DEBUG "/MTd")
 endif()
-
-set(SHOULD_BUILD_BSCRIPT FALSE)
-foreach(POLSERVER_LIB ${BSCRIPT_LIBS})
-  if (NOT EXISTS "${POLSERVER_LIB}")
-    message("- will build bscript: ${POLSERVER_LIB} is missing")
-    set(SHOULD_BUILD_BSCRIPT TRUE)
-    break()
-  endif()
-endforeach()
 
 set(BUILD_ALL OFF CACHE BOOL "nothing" FORCE)
 add_subdirectory(${BSCRIPT_SOURCE_DIR})
@@ -124,11 +76,7 @@ add_subdirectory(${BSCRIPT_SOURCE_DIR})
 target_include_directories(${PROJECT_NAME} PRIVATE
   "${BSCRIPT_SOURCE_DIR}/pol-core"
   "${BSCRIPT_SOURCE_DIR}/pol-core/bscript"
-  #  "${BSCRIPT_SOURCE_DIR}/lib"
-  #  "${BSCRIPT_SOURCE_DIR}/lib/fmt-10.2.0/include"
-  "${BSCRIPT_SOURCE_DIR}/bin-build"
-  #  "${BSCRIPT_SOURCE_DIR}/lib/antlr/install/include/antlr4-runtime"
-
+  #  "${BSCRIPT_SOURCE_DIR}/bin-build"
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
