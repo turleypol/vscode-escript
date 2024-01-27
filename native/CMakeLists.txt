@@ -100,7 +100,9 @@ else()
 endif()
 
 if (UNIX)
-  add_compile_options(-fPIC)
+  target_compile_definitions(${PROJECT_NAME} PRIVATE
+  -fPIC )
+#add_compile_options(-fPIC)
 endif()
 if (MSVC)
   set(CMAKE_CXX_FLAGS_RELEASE "/MT")
