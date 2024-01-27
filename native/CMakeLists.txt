@@ -52,7 +52,7 @@ execute_process(
 string(REGEX REPLACE "[\r\n\"]" "" NODE_ADDON_API_DIR ${NODE_ADDON_API_DIR})
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${NODE_ADDON_API_DIR})
-target_compile_definitions(${PROJECT_NAME} PUBLIC ANTLR4CPP_STATIC)
+#target_compile_definitions(${PROJECT_NAME} PUBLIC ANTLR4CPP_STATIC)
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
 set(BSCRIPT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/pol")
@@ -122,10 +122,10 @@ add_subdirectory(${BSCRIPT_SOURCE_DIR})
 target_include_directories(${PROJECT_NAME} PRIVATE
   "${BSCRIPT_SOURCE_DIR}/pol-core"
   "${BSCRIPT_SOURCE_DIR}/pol-core/bscript"
-  "${BSCRIPT_SOURCE_DIR}/lib"
-  "${BSCRIPT_SOURCE_DIR}/lib/fmt-10.2.0/include"
+  #  "${BSCRIPT_SOURCE_DIR}/lib"
+  #  "${BSCRIPT_SOURCE_DIR}/lib/fmt-10.2.0/include"
   "${BSCRIPT_SOURCE_DIR}/bin-build"
-  "${BSCRIPT_SOURCE_DIR}/lib/antlr/install/include/antlr4-runtime"
+  #  "${BSCRIPT_SOURCE_DIR}/lib/antlr/install/include/antlr4-runtime"
 
 )
 
@@ -142,8 +142,8 @@ if(MSVC)
     )
 endif()
 
-target_compile_definitions(${PROJECT_NAME} PUBLIC
-  TIXML_USE_STL
-)
+#target_compile_definitions(${PROJECT_NAME} PUBLIC
+#  TIXML_USE_STL
+#)
 
 add_definitions(-DNAPI_VERSION=5)

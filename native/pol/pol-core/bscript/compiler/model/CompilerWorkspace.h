@@ -6,18 +6,23 @@
 #include <string>
 #include <vector>
 
-#include "clib/maputil.h"
 #include "bscript/compiler/analyzer/Constants.h"
 #include "bscript/compiler/ast/Node.h"
+#include "bscript/compiler/astbuilder/BuilderWorkspace.h"
+#include "bscript/compiler/model/ScopeTree.h"
+#include "bscript/compiler/model/SemanticTokens.h"
+#include "clib/maputil.h"
 
 namespace Pol::Bscript::Compiler
 {
 class Block;
+class BuilderWorkspace;
 class ConstDeclaration;
 class ModuleFunctionDeclaration;
 class Program;
 class Report;
 class SourceFile;
+class SourceFileCache;
 class SourceFileIdentifier;
 class TopLevelStatements;
 class UserFunction;
@@ -25,10 +30,13 @@ class UserFunction;
 class CompilerWorkspace
 {
 public:
-  explicit CompilerWorkspace( Report& );
+  explicit CompilerWorkspace( Report&, SourceFileCache& em_cache, SourceFileCache& inc_cache,
+                              bool continue_on_error, Profile& profile );
   ~CompilerWorkspace();
 
   void accept( NodeVisitor& );
+
+  std::shared_ptr<SourceFile> source;
 
   std::vector<std::unique_ptr<ConstDeclaration>> const_declarations;
   Constants constants;
@@ -46,6 +54,9 @@ public:
   std::map<std::string, SourceLocation, Clib::ci_cmp_pred> all_function_locations;
 
   std::vector<std::string> global_variable_names;
+  ScopeTree scope_tree;
+  SemanticTokens tokens;
+  BuilderWorkspace builder_workspace;
 };
 
 }  // namespace Pol::Bscript::Compiler

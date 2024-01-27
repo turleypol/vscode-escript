@@ -19,10 +19,12 @@ class Variable;
 class LocalVariableScope
 {
 public:
-  explicit LocalVariableScope( LocalVariableScopes&,
+  explicit LocalVariableScope( const SourceLocation&, LocalVariableScopes&,
                                LocalVariableScopeInfo& );
   ~LocalVariableScope();
 
+  std::shared_ptr<Variable> create( const std::string& name, WarnOn, const SourceLocation&,
+                                    const SourceLocation& );
   std::shared_ptr<Variable> create( const std::string& name, WarnOn, const SourceLocation& );
 
 private:

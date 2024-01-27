@@ -1,16 +1,24 @@
 #include "CompilerWorkspace.h"
 
+#include "bscript/compiler/analyzer/Constants.h"
+#include "bscript/compiler/ast/ConstDeclaration.h"
 #include "bscript/compiler/ast/ModuleFunctionDeclaration.h"
 #include "bscript/compiler/ast/Program.h"
 #include "bscript/compiler/ast/TopLevelStatements.h"
-#include "bscript/compiler/analyzer/Constants.h"
-#include "bscript/compiler/ast/ConstDeclaration.h"
 #include "bscript/compiler/ast/UserFunction.h"
+#include "bscript/compiler/astbuilder/BuilderWorkspace.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
 
 namespace Pol::Bscript::Compiler
 {
-CompilerWorkspace::CompilerWorkspace( Report& report ) : constants( report ) {}
+CompilerWorkspace::CompilerWorkspace( Report& report, SourceFileCache& em_cache,
+                                      SourceFileCache& inc_cache, bool continue_on_error,
+                                      Profile& profile )
+    : constants( report ),
+      scope_tree( *this ),
+      builder_workspace( *this, em_cache, inc_cache, continue_on_error, profile, report )
+{
+}
 
 CompilerWorkspace::~CompilerWorkspace() = default;
 
