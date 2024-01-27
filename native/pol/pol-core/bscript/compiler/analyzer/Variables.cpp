@@ -9,17 +9,15 @@ namespace Pol::Bscript::Compiler
 Variables::Variables( VariableScope scope, Report& report ) : scope( scope ), report( report ) {}
 
 std::shared_ptr<Variable> Variables::create( const std::string& name, BlockDepth block_depth,
-                                             WarnOn warn_on, const SourceLocation& source_location,
-                                             const SourceLocation& var_decl_location )
+                                             WarnOn warn_on, const SourceLocation& source_location )
 {
   auto index = names_by_index.size();
   if ( index > std::numeric_limits<VariableIndex>::max() )
   {
     report.error( source_location, "Too many variables" );
   }
-  auto variable =
-      std::make_shared<Variable>( scope, name, block_depth, static_cast<VariableIndex>( index ),
-                                  warn_on, source_location, var_decl_location );
+  auto variable = std::make_shared<Variable>(
+      scope, name, block_depth, static_cast<VariableIndex>( index ), warn_on, source_location );
   variables_by_name[name] = variable;
   names_by_index.push_back( name );
   return variable;
@@ -37,40 +35,29 @@ void Variables::restore_shadowed( std::shared_ptr<Variable> variable )
   variables_by_name[variable->name] = std::move( variable );
 }
 
-std::vector<std::shared_ptr<Variable>> Variables::remove_all_but( unsigned count )
+void Variables::remove_all_but( unsigned count )
 {
-  std::vector<std::shared_ptr<Variable>> removed;
-  auto size = names_by_index.size() - count;
-  if ( size > 0 )
+  while ( names_by_index.size() > count )
   {
-    removed.reserve( size );
+    std::string last_name = names_by_index.back();
+    auto itr = variables_by_name.find( last_name );
 
-    while ( names_by_index.size() > count )
+    if ( itr != variables_by_name.end() )
     {
-      std::string last_name = names_by_index.back();
-      auto itr = variables_by_name.find( last_name );
-
-      if ( itr != variables_by_name.end() )
+      auto& removing = ( *itr ).second;
+      if ( removing->warn_on == WarnOn::IfUsed && removing->was_used() )
       {
-        auto& removing = ( *itr ).second;
-        if ( removing->warn_on == WarnOn::IfUsed && removing->was_used() )
-        {
-          report.warning( removing->source_location,
-                          "local variable '{}' declared as unused but used.", last_name );
-        }
-        else if ( removing->warn_on == WarnOn::IfNotUsed && !removing->was_used() )
-        {
-          report.warning( removing->source_location, "local variable '{}' was not used.",
-                          last_name );
-        }
-        removed.push_back( removing );
-        variables_by_name.erase( itr );
+        report.warning( removing->source_location,
+                        "local variable '{}' declared as unused but used.", last_name );
       }
-      names_by_index.pop_back();
+      else if ( removing->warn_on == WarnOn::IfNotUsed && !removing->was_used() )
+      {
+        report.warning( removing->source_location, "local variable '{}' was not used.", last_name );
+      }
+      variables_by_name.erase( itr );
     }
+    names_by_index.pop_back();
   }
-
-  return removed;
 }
 
 const std::vector<std::string>& Variables::get_names() const

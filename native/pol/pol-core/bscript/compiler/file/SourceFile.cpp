@@ -8,15 +8,10 @@
 
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
-#include "bscript/compiler/file/SourceFileLoader.h"
-#include "bscript/compiler/model/ScopeTree.h"
-#include "bscript/compiler/model/SemanticTokens.h"
 #include "compilercfg.h"
-#include <EscriptGrammar/EscriptParserVisitor.h>
 
 using EscriptGrammar::EscriptLexer;
 using EscriptGrammar::EscriptParser;
-using EscriptGrammar::EscriptParserVisitor;
 
 namespace Pol::Bscript::Compiler
 {
@@ -28,8 +23,8 @@ SourceFile::SourceFile( const std::string& pathname, const std::string& contents
       input( contents ),
       conformer( &input ),
       lexer( &conformer ),
-      token_stream( &lexer ),
-      parser( &token_stream ),
+      tokens( &lexer ),
+      parser( &tokens ),
       error_listener( pathname, profile ),
       compilation_unit( nullptr ),
       module_unit( nullptr ),
@@ -84,14 +79,15 @@ bool SourceFile::enforced_case_sensitivity_mismatch( const SourceLocation&, cons
 }
 #endif
 
-std::shared_ptr<SourceFile> SourceFile::load( const SourceFileIdentifier& ident,
-                                              const SourceFileLoader& source_loader,
-                                              Profile& profile, Report& report )
+std::shared_ptr<SourceFile> SourceFile::load( const SourceFileIdentifier& ident, Profile& profile,
+                                              Report& report )
 {
   const std::string& pathname = ident.pathname;
   try
   {
-    auto contents = source_loader.get_contents( pathname );
+    Clib::FileContents fc( pathname.c_str(), true );
+    std::string contents( fc.contents() );
+
     Clib::sanitizeUnicodeWithIso( &contents );
 
     if ( is_web_script( pathname.c_str() ) )
@@ -105,18 +101,6 @@ std::shared_ptr<SourceFile> SourceFile::load( const SourceFileIdentifier& ident,
   {
     report.error( ident, "Unable to read file '{}'.", pathname );
     return {};
-  }
-}
-
-void SourceFile::accept( EscriptParserVisitor& visitor )
-{
-  if ( compilation_unit )
-  {
-    visitor.visit( compilation_unit );
-  }
-  else if ( module_unit )
-  {
-    visitor.visit( module_unit );
   }
 }
 
@@ -146,78 +130,6 @@ EscriptGrammar::EscriptParser::ModuleUnitContext* SourceFile::get_module_unit(
   ++access_count;
   propagate_errors_to( report, ident );
   return module_unit;
-}
-
-std::vector<antlr4::Token*> SourceFile::get_hidden_tokens_before( const Position& position )
-{
-  auto tokens = get_all_tokens();
-  size_t token_index = 0;
-  for ( const auto& token : tokens )
-  {
-    if ( token->getLine() == position.line_number &&
-         token->getCharPositionInLine() + 1 <= position.character_column &&
-         token->getCharPositionInLine() + 1 + token->getText().length() >=
-             position.character_column )
-    {
-      break;
-    }
-    token_index++;
-  }
-
-  if ( token_index < tokens.size() )
-  {
-    return get_hidden_tokens_before( token_index );
-  }
-
-  return std::vector<antlr4::Token*>();
-}
-
-std::vector<antlr4::Token*> SourceFile::get_hidden_tokens_before( size_t tokenIndex )
-{
-  token_stream.reset();
-  return token_stream.getHiddenTokensToLeft( tokenIndex );
-}
-
-std::unique_ptr<antlr4::Token> SourceFile::get_token_at( const Position& position )
-{
-  auto tokens = get_all_tokens();
-  auto result =
-      std::find_if( tokens.begin(), tokens.end(),
-                    [&]( const auto& token )
-                    {
-                      return token->getLine() == position.line_number &&
-                             token->getCharPositionInLine() + 1 <= position.character_column &&
-                             token->getCharPositionInLine() + 1 + token->getText().length() >=
-                                 position.character_column;
-                    } );
-  if ( result != tokens.end() )
-  {
-    return std::move( *result );
-  }
-  return {};
-}
-
-std::vector<std::unique_ptr<antlr4::Token>> SourceFile::get_all_tokens()
-{
-  lexer.reset();
-  return lexer.getAllTokens();
-}
-
-SemanticTokens SourceFile::get_tokens()
-{
-  SemanticTokens tokens;
-  lexer.reset();
-  for ( const auto& lexer_token : lexer.getAllTokens() )
-  {
-    auto semantic_token = SemanticToken::from_lexer_token( *lexer_token );
-    if ( semantic_token )
-    {
-      auto& t = *semantic_token;
-      tokens.insert( tokens.end(), std::make_move_iterator( t.begin() ),
-                     std::make_move_iterator( t.end() ) );
-    }
-  }
-  return tokens;
 }
 
 /**

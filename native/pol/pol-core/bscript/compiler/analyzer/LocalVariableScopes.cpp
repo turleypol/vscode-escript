@@ -1,13 +1,11 @@
 #include "LocalVariableScopes.h"
 
 #include "bscript/compiler/analyzer/Variables.h"
-#include "bscript/compiler/model/ScopeTree.h"
 
 namespace Pol::Bscript::Compiler
 {
-LocalVariableScopes::LocalVariableScopes( ScopeTree& scope_tree, Variables& local_variables,
-                                          Report& report )
-    : local_variables( local_variables ), tree( scope_tree ), report( report )
+LocalVariableScopes::LocalVariableScopes( Variables& local_variables, Report& report )
+    : local_variables( local_variables ), report( report )
 {
 }
 

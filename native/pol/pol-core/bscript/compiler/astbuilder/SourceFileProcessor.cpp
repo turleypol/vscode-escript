@@ -60,12 +60,7 @@ void SourceFileProcessor::use_module( const std::string& module_name,
   {
     // This is fatal because if we keep going, we'll likely report a bunch of errors
     // that would just be noise, like missing module function declarations or constants.
-    // But in diagnostics mode, we want to continue, so...
-    report.error( including_location, "Unable to use module '{}'.", module_name );
-    // Move the failed-to-load SourceFileIdentifier to the compiler to properly
-    // own diagnostic references.
-    workspace.compiler_workspace.referenced_source_file_identifiers.push_back( std::move( ident ) );
-    return;
+    report.fatal( including_location, "Unable to use module '{}'.", module_name );
   }
   workspace.source_files[pathname] = sf;
 
@@ -96,7 +91,7 @@ void SourceFileProcessor::process_source( SourceFile& sf )
   profile.parse_src_micros.fetch_add( parse_us_counted );
   profile.parse_src_count++;
 
-  if ( workspace.continue_on_error || report.error_count() == 0 )
+  if ( report.error_count() == 0 )
   {
     Pol::Tools::HighPerfTimer ast_timer;
     compilation_unit->accept( this );
@@ -115,7 +110,7 @@ void SourceFileProcessor::process_include( SourceFile& sf, long long* micros_cou
   profile.parse_inc_micros.fetch_add( parse_micros_elapsed );
   *micros_counted += parse_micros_elapsed;
 
-  if ( workspace.continue_on_error || report.error_count() == 0 )
+  if ( report.error_count() == 0 )
   {
     Pol::Tools::HighPerfTimer ast_timer;
     compilation_unit->accept( this );
@@ -162,8 +157,6 @@ void SourceFileProcessor::handle_include_declaration( EscriptParser::IncludeDecl
     {
       report.error( source_location, "Unable to include file '{}': failed to load.",
                     canonical_include_pathname );
-      workspace.compiler_workspace.referenced_source_file_identifiers.push_back(
-          std::move( ident ) );
       return;
     }
 
