@@ -185,6 +185,7 @@ macro(prepare_build)
   if (NOT HAVE_MYSQL)
     message(WARNING "MySQL not found") 
   endif()
+  message("CONFIG ${PROJECT_BINARY_DIR}/pol_global_config.h")
   configure_file(
     ${CMAKE_CURRENT_LIST_DIR}/cmake/env/pol_global_config.h.in 
     ${PROJECT_BINARY_DIR}/pol_global_config.h

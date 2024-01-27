@@ -1,5 +1,5 @@
 function(set_compile_flags target is_executable)
-  message("* ${target}")
+  message("* ${target} ${PROJECT_BINARY_DIR}")
   target_include_directories(${target}  PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR} #own folder
     ${PROJECT_BINARY_DIR} #global config
