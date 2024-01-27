@@ -144,8 +144,4 @@ if(MSVC)
     )
 endif()
 
-#target_compile_definitions(${PROJECT_NAME} PUBLIC
-#  TIXML_USE_STL
-#)
-
 add_definitions(-DNAPI_VERSION=5)

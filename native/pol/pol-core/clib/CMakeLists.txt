@@ -27,7 +27,7 @@ if (${linux})
   if (APPLE)
     pkg_search_module(OPENSSL QUIET openssl)
     target_include_directories(${lib_name} PRIVATE ${OPENSSL_INCLUDEDIR})
-    target_link_directories(${lib_name} PRIVATE ${OPENSSL_LIBDIR})
+    target_link_directories(${lib_name} PUBLIC ${OPENSSL_LIBDIR})
   endif()
   target_link_libraries(${lib_name} PRIVATE
     crypto
