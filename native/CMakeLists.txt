@@ -132,7 +132,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 target_include_directories(${PROJECT_NAME} PRIVATE
   "${PROJECT_BINARY_DIR}/pol"
 )
-target_link_libraries(${PROJECT_NAME} bscript libtinyxml)
+target_link_libraries(${PROJECT_NAME} bscript plib libtinyxml)
 
 if(MSVC)
     add_compile_options(
