@@ -100,8 +100,8 @@ else()
 endif()
 
 if (UNIX)
-  target_compile_options(${PROJECT_NAME} PRIVATE
-  -fPIC )
+  # target_compile_options(${PROJECT_NAME} PRIVATE
+  #  -fPIC )
 #add_compile_options(-fPIC)
 endif()
 if (MSVC)
