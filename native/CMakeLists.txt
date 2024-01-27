@@ -117,26 +117,27 @@ foreach(POLSERVER_LIB ${BSCRIPT_LIBS})
 endforeach()
 
 if (SHOULD_BUILD_BSCRIPT)
-  ExternalProject_Add(libbscript
-    SOURCE_DIR  ${BSCRIPT_SOURCE_DIR}
-    PREFIX blinb
-    LIST_SEPARATOR |
-    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DONLY_ECOMPILE=On -DCMAKE_OSX_ARCHITECTURES=${PIPED_OSX_ARCHITECTURES}
-
-    BINARY_DIR ${BSCRIPT_BUILD_DIR}
-
-    BUILD_COMMAND ${CMAKE_COMMAND} --build . --config ${CMAKE_BUILD_TYPE}
-    INSTALL_COMMAND ""
-
-    BUILD_BYPRODUCTS ${BSCRIPT_LIBS}
-    LOG_DOWNLOAD 1
-    LOG_CONFIGURE 1
-    LOG_BUILD 1
-    LOG_INSTALL 1
-    LOG_OUTPUT_ON_FAILURE 1
-    LOG_MERGED_STDOUTERR 1
-  )
-  add_dependencies(${PROJECT_NAME} libbscript)
+  #  ExternalProject_Add(libbscript
+  #    SOURCE_DIR  ${BSCRIPT_SOURCE_DIR}
+  #    PREFIX blinb
+  #    LIST_SEPARATOR |
+  #    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DONLY_ECOMPILE=On -DCMAKE_OSX_ARCHITECTURES=${PIPED_OSX_ARCHITECTURES}
+  #
+  #    BINARY_DIR ${BSCRIPT_BUILD_DIR}
+  #
+  #    BUILD_COMMAND ${CMAKE_COMMAND} --build . --config ${CMAKE_BUILD_TYPE}
+  #    INSTALL_COMMAND ""
+  #
+  #    BUILD_BYPRODUCTS ${BSCRIPT_LIBS}
+  #    LOG_DOWNLOAD 1
+  #    LOG_CONFIGURE 1
+  #    LOG_BUILD 1
+  #    LOG_INSTALL 1
+  #    LOG_OUTPUT_ON_FAILURE 1
+  #    LOG_MERGED_STDOUTERR 1
+  #  )
+  #  add_dependencies(${PROJECT_NAME} libbscript)
+  add_subdirectory(${BSCRIPT_SOURCE_DIR})
 else()
   message("- will not build libbscript")
 endif()
@@ -150,7 +151,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
   "${BSCRIPT_SOURCE_DIR}/lib/antlr/install/include/antlr4-runtime"
 )
 
-target_link_libraries(${PROJECT_NAME} ${BSCRIPT_LIBS})
+target_link_libraries(${PROJECT_NAME} bscript)
 
 if(MSVC)
     add_compile_options(
