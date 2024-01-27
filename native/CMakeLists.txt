@@ -9,8 +9,6 @@ if(APPLE AND NOT DEFINED ENV{BUILD_OSX_SLIM_BINARY})
   set(PIPED_OSX_ARCHITECTURES "arm64|x86_64") # For ExternalProject
 endif()
 
-include(ExternalProject)
-
 project (vscode-escript-native)
 include_directories(${CMAKE_JS_INC})
 set(CMAKE_VERBOSE_MAKEFILE ON)
@@ -54,17 +52,6 @@ string(REGEX REPLACE "[\r\n\"]" "" NODE_ADDON_API_DIR ${NODE_ADDON_API_DIR})
 target_include_directories(${PROJECT_NAME} PRIVATE ${NODE_ADDON_API_DIR})
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
-set(BSCRIPT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/pol")
-set(BSCRIPT_BUILD_DIR "${BSCRIPT_SOURCE_DIR}/bin-build")
-set(BSCRIPT_BIN_DIR "${BSCRIPT_SOURCE_DIR}/bin")
-
-if (WIN32)
-
-  #  target_link_libraries(${PROJECT_NAME}
-  #    "ws2_32"
-  #  )
-endif()
-
 if (MSVC)
   set(CMAKE_CXX_FLAGS_RELEASE "/MT")
   set(CMAKE_CXX_FLAGS_DEBUG "/MTd")
@@ -76,12 +63,11 @@ add_subdirectory(${BSCRIPT_SOURCE_DIR})
 target_include_directories(${PROJECT_NAME} PRIVATE
   "${BSCRIPT_SOURCE_DIR}/pol-core"
   "${BSCRIPT_SOURCE_DIR}/pol-core/bscript"
-  #  "${BSCRIPT_SOURCE_DIR}/bin-build"
 )
 
-target_include_directories(${PROJECT_NAME} PRIVATE
-  "${PROJECT_BINARY_DIR}/pol"
-)
+#target_include_directories(${PROJECT_NAME} PRIVATE
+#  "${PROJECT_BINARY_DIR}/pol"
+#)
 target_link_libraries(${PROJECT_NAME} bscript plib libtinyxml)
 
 if(MSVC)
