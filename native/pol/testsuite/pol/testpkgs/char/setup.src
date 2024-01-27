@@ -1,0 +1,11 @@
+use os;
+use uo;
+
+include "testutil";
+
+var char:=createAccountWithChar("test", "pass");
+if (!char)
+  return char;
+endif
+
+return 1;
