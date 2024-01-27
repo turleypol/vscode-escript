@@ -149,8 +149,12 @@ target_include_directories(${PROJECT_NAME} PRIVATE
   "${BSCRIPT_SOURCE_DIR}/lib/fmt-10.2.0/include"
   "${BSCRIPT_SOURCE_DIR}/bin-build"
   "${BSCRIPT_SOURCE_DIR}/lib/antlr/install/include/antlr4-runtime"
+
 )
 
+target_include_directories(${PROJECT_NAME} PRIVATE
+  "${PROJECT_BINARY_DIR}"
+}
 target_link_libraries(${PROJECT_NAME} bscript)
 
 if(MSVC)
