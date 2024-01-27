@@ -100,7 +100,7 @@ else()
 endif()
 
 if (UNIX)
-  target_compile_definitions(${PROJECT_NAME} PRIVATE
+  target_compile_options(${PROJECT_NAME} PRIVATE
   -fPIC )
 #add_compile_options(-fPIC)
 endif()
