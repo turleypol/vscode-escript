@@ -55,7 +55,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${NODE_ADDON_API_DIR})
 target_compile_definitions(${PROJECT_NAME} PUBLIC ANTLR4CPP_STATIC)
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
-set(BSCRIPT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/polserver")
+set(BSCRIPT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/pol")
 set(BSCRIPT_BUILD_DIR "${BSCRIPT_SOURCE_DIR}/bin-build")
 set(BSCRIPT_BIN_DIR "${BSCRIPT_SOURCE_DIR}/bin")
 
