@@ -4,6 +4,8 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 
 set (CMAKE_CXX_STANDARD 17)
 
+project (vscode-escript-native)
+
 if(APPLE)
   set(PLATFORM darwin)
 elseif(WIN32)
@@ -27,6 +29,7 @@ else()
   set(ARCH x64)
 endif()
 
+message("****test")
 message("${MSVC} AND ${CMAKE_JS_NODELIB_DEF} AND ${CMAKE_JS_NODELIB_TARGET}")
 if(MSVC AND CMAKE_JS_NODELIB_DEF AND CMAKE_JS_NODELIB_TARGET)
   message("****NODELIB")
@@ -41,7 +44,6 @@ execute_process(
 )
 string(REGEX REPLACE "[\r\n\"]" "" NODE_ADDON_API_DIR ${NODE_ADDON_API_DIR})
 
-project (vscode-escript-native)
 
 file(GLOB_RECURSE SOURCE_FILES "cpp/*.cc" "cpp/*.h")
 add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES} ${CMAKE_JS_SRC})
