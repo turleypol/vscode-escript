@@ -1,21 +1,8 @@
 cmake_minimum_required(VERSION 3.9)
 cmake_policy(SET CMP0042 NEW)
-set (CMAKE_CXX_STANDARD 11)
-
-if(APPLE AND NOT DEFINED ENV{BUILD_OSX_SLIM_BINARY})
-  message("** Building universal macOS binary")
-  set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64" CACHE STRING "" FORCE)
-  set(BUILD_OSX_UNIVERSAL_BINARY TRUE)
-  set(PIPED_OSX_ARCHITECTURES "arm64|x86_64") # For ExternalProject
-endif()
-
-project (vscode-escript-native)
-include_directories(${CMAKE_JS_INC})
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
-file(GLOB_RECURSE SOURCE_FILES "cpp/*.cc" "cpp/*.h")
-add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES} ${CMAKE_JS_SRC})
-set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")
+set (CMAKE_CXX_STANDARD 17)
 
 if(APPLE)
   set(PLATFORM darwin)
@@ -25,6 +12,13 @@ else()
   set(PLATFORM linux)
 endif()
 
+if(APPLE AND NOT DEFINED ENV{BUILD_OSX_SLIM_BINARY})
+  message("** Building universal macOS binary")
+  set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64" CACHE STRING "" FORCE)
+  set(BUILD_OSX_UNIVERSAL_BINARY TRUE)
+  set(PIPED_OSX_ARCHITECTURES "arm64|x86_64") # For ExternalProject
+endif()
+
 if(BUILD_OSX_UNIVERSAL_BINARY)
   set(ARCH universal)
 elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^(arm.*|ARM.*)")
@@ -32,10 +26,6 @@ elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^(arm.*|ARM.*)")
 else()
   set(ARCH x64)
 endif()
-
-set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "vscode-escript-native.${PLATFORM}-${ARCH}")
-
-target_link_libraries(${PROJECT_NAME} ${CMAKE_JS_LIB})
 
 if(MSVC AND CMAKE_JS_NODELIB_DEF AND CMAKE_JS_NODELIB_TARGET)
   # Generate node.lib
@@ -49,21 +39,41 @@ execute_process(
 )
 string(REGEX REPLACE "[\r\n\"]" "" NODE_ADDON_API_DIR ${NODE_ADDON_API_DIR})
 
-target_include_directories(${PROJECT_NAME} PRIVATE ${NODE_ADDON_API_DIR})
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
+project (vscode-escript-native)
+
+file(GLOB_RECURSE SOURCE_FILES "cpp/*.cc" "cpp/*.h")
+add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES} ${CMAKE_JS_SRC})
+set_target_properties(${PROJECT_NAME} PROPERTIES
+  PREFIX "" SUFFIX ".node"
+  OUTPUT_NAME "vscode-escript-native.${PLATFORM}-${ARCH}"
+)
+
+target_include_directories(${PROJECT_NAME} PRIVATE
+  ${NODE_ADDON_API_DIR}
+  ${CMAKE_JS_INC}
+)
+target_link_libraries(${PROJECT_NAME} PRIVATE
+  ${CMAKE_JS_LIB}
+)
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+  NAPI_VERSION=5
+)
+
 if(MSVC)
-  target_compile_options(${PROJECT_NAME} PUBLIC 
-        $<$<CONFIG:>:/MT> #---------|
-        $<$<CONFIG:Debug>:/MTd> #---|-- Statically link the runtime libraries
-        $<$<CONFIG:Release>:/MT> #--|
-    )
+  target_compile_options(${PROJECT_NAME} PRIVATE
+    $<$<CONFIG:>:/MT> #---------|
+    $<$<CONFIG:Debug>:/MTd> #---|-- Statically link the runtime libraries
+    $<$<CONFIG:Release>:/MT> #--|
+  )
 endif()
 
-
+# since external prjs are always build, disable pol related ones
+# eg Curl
 set(BUILD_ALL OFF CACHE BOOL "do not add every ext prj" FORCE)
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/pol")
 
-target_link_libraries(${PROJECT_NAME} bscript plib libtinyxml)
-
-
-target_compile_definitions(${PROJECT_NAME} PRIVATE NAPI_VERSION=5)
+target_link_libraries(${PROJECT_NAME} PRIVATE
+  bscript
+  plib
+  libtinyxml
+)
