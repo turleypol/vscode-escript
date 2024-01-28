@@ -29,6 +29,7 @@ if(NOT EXISTS "${CURL_LIB}")
     LOG_INSTALL 1
     LOG_OUTPUT_ON_FAILURE 1
     DOWNLOAD_EXTRACT_TIMESTAMP 1
+    EXCLUDE_FROM_ALL 1
   )
   set_target_properties (libcurl_Ext PROPERTIES FOLDER 3rdParty)
   file(MAKE_DIRECTORY ${CURL_INSTALL_DIR}/include) #directory has to exist during configure

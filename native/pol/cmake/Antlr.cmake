@@ -38,6 +38,7 @@ if (NOT EXISTS ${ANTLR_LIB})
     LOG_BUILD 1
     LOG_INSTALL 1
     LOG_OUTPUT_ON_FAILURE 1
+    EXCLUDE_FROM_ALL 1
   )
   file(MAKE_DIRECTORY ${ANTLR_INCLUDE_DIR}) #directory has to exist during configure
 else()

@@ -36,6 +36,7 @@ ExternalProject_Add(fmt_Ext
     LOG_BUILD 1
     LOG_INSTALL 1
     LOG_OUTPUT_ON_FAILURE 1
+    EXCLUDE_FROM_ALL 1
   )
 
 # imported target to add include/lib dir and additional dependencies
