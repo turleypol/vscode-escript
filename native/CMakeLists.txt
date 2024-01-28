@@ -62,12 +62,9 @@ add_subdirectory(${BSCRIPT_SOURCE_DIR})
 
 target_include_directories(${PROJECT_NAME} PRIVATE
   "${BSCRIPT_SOURCE_DIR}/pol-core"
-  "${BSCRIPT_SOURCE_DIR}/pol-core/bscript"
+  #  "${BSCRIPT_SOURCE_DIR}/pol-core/bscript"
 )
 
-#target_include_directories(${PROJECT_NAME} PRIVATE
-#  "${PROJECT_BINARY_DIR}/pol"
-#)
 target_link_libraries(${PROJECT_NAME} bscript plib libtinyxml)
 
 if(MSVC)
