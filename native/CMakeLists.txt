@@ -51,23 +51,31 @@ string(REGEX REPLACE "[\r\n\"]" "" NODE_ADDON_API_DIR ${NODE_ADDON_API_DIR})
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${NODE_ADDON_API_DIR})
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
-
-if (MSVC)
-  set(CMAKE_CXX_FLAGS_RELEASE "/MT")
-  set(CMAKE_CXX_FLAGS_DEBUG "/MTd")
+if(MSVC)
+  target_compile_options(${PROJECT_NAME} PUBLIC 
+        $<$<CONFIG:>:/MT> #---------|
+        $<$<CONFIG:Debug>:/MTd> #---|-- Statically link the runtime libraries
+        $<$<CONFIG:Release>:/MT> #--|
+    )
 endif()
+
+
+#if (MSVC)
+#  set(CMAKE_CXX_FLAGS_RELEASE "/MT")
+#  set(CMAKE_CXX_FLAGS_DEBUG "/MTd")
+#endif()
 set(BSCRIPT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/pol")
 set(BUILD_ALL OFF CACHE BOOL "nothing" FORCE)
 add_subdirectory(${BSCRIPT_SOURCE_DIR})
 
 target_link_libraries(${PROJECT_NAME} bscript plib libtinyxml)
 
-if(MSVC)
-    add_compile_options(
-        $<$<CONFIG:>:/MT> #---------|
-        $<$<CONFIG:Debug>:/MTd> #---|-- Statically link the runtime libraries
-        $<$<CONFIG:Release>:/MT> #--|
-    )
-endif()
+#if(MSVC)
+#    add_compile_options(
+#        $<$<CONFIG:>:/MT> #---------|
+#        $<$<CONFIG:Debug>:/MTd> #---|-- Statically link the runtime libraries
+#        $<$<CONFIG:Release>:/MT> #--|
+#    )
+#endif()
 
 add_definitions(-DNAPI_VERSION=5)
