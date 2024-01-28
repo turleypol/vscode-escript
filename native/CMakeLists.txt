@@ -60,11 +60,6 @@ set(BSCRIPT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/pol")
 set(BUILD_ALL OFF CACHE BOOL "nothing" FORCE)
 add_subdirectory(${BSCRIPT_SOURCE_DIR})
 
-target_include_directories(${PROJECT_NAME} PRIVATE
-  "${BSCRIPT_SOURCE_DIR}/pol-core"
-  #  "${BSCRIPT_SOURCE_DIR}/pol-core/bscript"
-)
-
 target_link_libraries(${PROJECT_NAME} bscript plib libtinyxml)
 
 if(MSVC)

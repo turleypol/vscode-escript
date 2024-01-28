@@ -22,7 +22,10 @@ target_link_libraries(${lib_name} PUBLIC
   #  libboost_system
   #  libboost_thread
 )
+
+#since clib is our baselib make here the include dirs public
 target_include_directories(${lib_name} PUBLIC
+  ${POLCORE_DIR} # path to pol-core
   ${PROJECT_BINARY_DIR} #global config
 )
 
