@@ -52,7 +52,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
   ${NODE_ADDON_API_DIR}
   ${CMAKE_JS_INC}
 )
-target_link_libraries(${PROJECT_NAME} PRIVATE
+target_link_libraries(${PROJECT_NAME} PUBLIC
   ${CMAKE_JS_LIB}
 )
 target_compile_definitions(${PROJECT_NAME} PRIVATE
