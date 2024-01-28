@@ -27,6 +27,7 @@ else()
   set(ARCH x64)
 endif()
 
+message("${MSVC} AND ${CMAKE_JS_NODELIB_DEF} AND ${CMAKE_JS_NODELIB_TARGET}")
 if(MSVC AND CMAKE_JS_NODELIB_DEF AND CMAKE_JS_NODELIB_TARGET)
   message("****NODELIB")
   # Generate node.lib
