@@ -40,7 +40,6 @@
 #include "bscript/compiler/ast/VariableAssignmentStatement.h"
 #include "bscript/compiler/ast/WhileLoop.h"
 #include "bscript/compiler/astbuilder/SimpleValueCloner.h"
-#include "bscript/compiler/file/SourceLocation.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
 #include "bscript/compiler/model/FunctionLink.h"
 #include "bscript/compiler/model/Variable.h"
@@ -57,7 +56,7 @@ SemanticAnalyzer::SemanticAnalyzer( CompilerWorkspace& workspace, Report& report
       locals( VariableScope::Local, report ),
       break_scopes( locals, report ),
       continue_scopes( locals, report ),
-      local_scopes( workspace.scope_tree, locals, report )
+      local_scopes( locals, report )
 {
 }
 
@@ -75,8 +74,6 @@ void SemanticAnalyzer::register_const_declarations( CompilerWorkspace& workspace
 
 void SemanticAnalyzer::analyze()
 {
-  workspace.scope_tree.push_scope(
-      SourceLocation( workspace.referenced_source_file_identifiers[0].get(), 0, 0 ) );
   workspace.top_level_statements->accept( *this );
   if ( auto& program = workspace.program )
   {
@@ -89,9 +86,6 @@ void SemanticAnalyzer::analyze()
   }
 
   workspace.global_variable_names = globals.get_names();
-
-  auto global_variables = globals.remove_all_but( 0 );
-  workspace.scope_tree.set_globals( std::move( global_variables ) );
 }
 
 void SemanticAnalyzer::visit_basic_for_loop( BasicForLoop& node )
@@ -109,7 +103,7 @@ void SemanticAnalyzer::visit_basic_for_loop( BasicForLoop& node )
   node.first().accept( *this );
   node.last().accept( *this );
 
-  LocalVariableScope scope( node.source_location, local_scopes, node.local_variable_scope_info );
+  LocalVariableScope scope( local_scopes, node.local_variable_scope_info );
   scope.create( node.identifier, WarnOn::Never, node.source_location );
   scope.create( "_" + node.identifier + "_end", WarnOn::Never, node.source_location );
 
@@ -123,7 +117,7 @@ void SemanticAnalyzer::visit_basic_for_loop( BasicForLoop& node )
 
 void SemanticAnalyzer::visit_block( Block& block )
 {
-  LocalVariableScope scope( block.source_location, local_scopes, block.local_variable_scope_info );
+  LocalVariableScope scope( local_scopes, block.local_variable_scope_info );
 
   visit_children( block );
 }
@@ -263,7 +257,7 @@ void SemanticAnalyzer::visit_foreach_loop( ForeachLoop& node )
 
   node.expression().accept( *this );
 
-  LocalVariableScope scope( node.source_location, local_scopes, node.local_variable_scope_info );
+  LocalVariableScope scope( local_scopes, node.local_variable_scope_info );
   scope.create( node.iterator_name, WarnOn::Never, node.source_location );
   scope.create( "_" + node.iterator_name + "_expr", WarnOn::Never, node.source_location );
   scope.create( "_" + node.iterator_name + "_iter", WarnOn::Never, node.source_location );
@@ -288,16 +282,7 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
   bool any_named = false;
 
   std::vector<std::unique_ptr<Argument>> arguments = fc.take_arguments();
-  auto params = fc.parameters();
-  if ( !params )
-  {
-    // The error is reported via FunctionResolver when called by
-    // CompierWorkspaceBuilder::build_referenced_user_functions. We just need to
-    // skip all of this.
-    return;
-  }
-
-  auto parameters = *params;
+  auto parameters = fc.parameters();
 
   for ( auto& arg_unique_ptr : arguments )
   {
@@ -489,8 +474,7 @@ void SemanticAnalyzer::visit_loop_statement( LoopStatement& loop )
 
 void SemanticAnalyzer::visit_program( Program& program )
 {
-  LocalVariableScope scope( program.source_location, local_scopes,
-                            program.local_variable_scope_info );
+  LocalVariableScope scope( local_scopes, program.local_variable_scope_info );
 
   visit_children( program );
 }
@@ -529,7 +513,7 @@ void SemanticAnalyzer::visit_user_function( UserFunction& node )
                     node.name, node.name.length(), max_name_length );
     }
   }
-  LocalVariableScope scope( node.source_location, local_scopes, node.local_variable_scope_info );
+  LocalVariableScope scope( local_scopes, node.local_variable_scope_info );
 
   visit_children( node );
 }
@@ -549,8 +533,7 @@ void SemanticAnalyzer::visit_var_statement( VarStatement& node )
 
   if ( auto local_scope = local_scopes.current_local_scope() )
   {
-    node.variable = local_scope->create( node.name, WarnOn::Never, node.source_location,
-                                         node.var_decl_location );
+    node.variable = local_scope->create( node.name, WarnOn::Never, node.source_location );
   }
   else
   {
@@ -563,8 +546,7 @@ void SemanticAnalyzer::visit_var_statement( VarStatement& node )
       return;
     }
 
-    node.variable =
-        globals.create( node.name, 0, WarnOn::Never, node.source_location, node.var_decl_location );
+    node.variable = globals.create( node.name, 0, WarnOn::Never, node.source_location );
   }
   visit_children( node );
 }

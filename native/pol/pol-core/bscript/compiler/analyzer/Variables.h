@@ -23,13 +23,13 @@ public:
   Variables( VariableScope, Report& );
 
   std::shared_ptr<Variable> create( const std::string& name, BlockDepth, WarnOn,
-                                    const SourceLocation&, const SourceLocation& );
+                                    const SourceLocation& );
 
   [[nodiscard]] std::shared_ptr<Variable> find( const std::string& name ) const;
 
   void restore_shadowed( std::shared_ptr<Variable> );
 
-  std::vector<std::shared_ptr<Variable>> remove_all_but( unsigned count );
+  void remove_all_but( unsigned count );
 
   [[nodiscard]] const std::vector<std::string>& get_names() const;
   [[nodiscard]] unsigned count() const;

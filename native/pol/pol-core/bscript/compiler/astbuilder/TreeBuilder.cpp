@@ -33,8 +33,6 @@ SourceLocation TreeBuilder::location_for( antlr4::tree::TerminalNode& ctx ) cons
 
 std::string TreeBuilder::text( antlr4::tree::TerminalNode* terminal )
 {
-  if ( !terminal )
-    return "";
   return terminal->getSymbol()->getText();
 }
 
